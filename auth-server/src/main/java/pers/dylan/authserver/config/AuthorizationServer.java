@@ -29,62 +29,67 @@ public class AuthorizationServer extends AuthorizationServerConfigurerAdapter {
 
     /**
      * 配置 Token 的一些基本信息，例如 Token 是否支持刷新、Token 的存储位置、Token 的有效期以及刷新 Token 的有效期等
+     *
      * @return
      */
     @Bean
-    AuthorizationServerTokenServices tokenServices(){
+    AuthorizationServerTokenServices tokenServices() {
         DefaultTokenServices services = new DefaultTokenServices();
         services.setClientDetailsService(clientDetailsService);
         services.setSupportRefreshToken(true);
         services.setTokenStore(tokenStore);
-        services.setAccessTokenValiditySeconds(60*60*2);
-        services.setRefreshTokenValiditySeconds(60*60*24*3);
+        services.setAccessTokenValiditySeconds(60 * 60 * 2);
+        services.setRefreshTokenValiditySeconds(60 * 60 * 24 * 3);
         return services;
     }
 
     /**
      * 用来配置令牌端点的安全约束，也就是这个端点谁能访问，谁不能访问
+     *
      * @param security
      */
     @Override
-    public void configure(AuthorizationServerSecurityConfigurer security){
+    public void configure(AuthorizationServerSecurityConfigurer security) {
         //Token 校验的端点
-       security.checkTokenAccess("permitAll()")
-               .allowFormAuthenticationForClients();
+        security.checkTokenAccess("permitAll()")
+                .allowFormAuthenticationForClients();
     }
 
     /**
      * 配置客户端的详细信息
-     *  id，secret、资源 id、授权类型、授权范围以及重定向 uri
+     * id，secret、资源 id、授权类型、授权范围以及重定向 uri
+     *
      * @param clients
      * @throws Exception
      */
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
         clients.inMemory()
-                .withClient("dylan")
+                .withClient("javaboy")
                 .secret(new BCryptPasswordEncoder().encode("123"))
-                .redirectUris("res1")
+                .resourceIds("res1")
                 .authorizedGrantTypes("authorization_code","refresh_token")
                 .scopes("all")
-                .redirectUris("http://localhost:8002/index.html");
+                .redirectUris("http://localhost:8082/index.html");
     }
 
     /**
      * authorizationCodeServices用来配置授权码的存储，这里我们是存在在内存中
+     *
      * @return
      */
     @Bean
-    AuthorizationCodeServices authorizationCodeServices(){
+    AuthorizationCodeServices authorizationCodeServices() {
         return new InMemoryAuthorizationCodeServices();
     }
 
     /**
      * 配置令牌的访问端点和令牌服务。
+     *
      * @param endpoints
      */
     @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints){
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         endpoints.authorizationCodeServices(authorizationCodeServices())
                 .tokenServices(tokenServices());
     }

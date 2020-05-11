@@ -10,10 +10,11 @@ public class AccessTokenConfig {
 
     /**
      * 生成的token存放位置
+     *
      * @return
      */
     @Bean
-    TokenStore tokenStore(){
+    TokenStore tokenStore() {
         return new InMemoryTokenStore();
     }
 }
